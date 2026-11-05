@@ -527,16 +527,33 @@
   <!-- ============ FLOATING UI ============ -->
   <div class="petals" id="petals" aria-hidden="true"></div>
 
-  <button class="music" id="musicBtn" type="button" aria-label="Putar / jeda musik">
-    <span class="music__disc"></span>
-    <span class="music__bars"><i></i><i></i><i></i></span>
-  </button>
-
   <nav class="dock" id="dock" aria-label="Navigasi">
     <span class="dock__pill" aria-hidden="true"></span>
     <a href="#home" data-target="home" aria-label="Beranda"><svg class="ic"><use href="#i-home"/></svg></a>
     <a href="#couple" data-target="couple" aria-label="Mempelai"><svg class="ic"><use href="#i-couple"/></svg></a>
     <a href="#event" data-target="event" aria-label="Acara"><svg class="ic"><use href="#i-cal"/></svg></a>
+
+    <!-- Vinyl music player -->
+    <button class="disc" id="musicBtn" type="button" aria-label="Putar / jeda musik" aria-pressed="false">
+      <span class="disc__stage">
+        <span class="disc__waves" aria-hidden="true"><i></i><i></i><i></i></span>
+        <svg class="disc__ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle class="disc__ring-bg" cx="40" cy="40" r="37" />
+          <circle class="disc__ring-fg" id="discProgress" cx="40" cy="40" r="37" pathLength="100" />
+        </svg>
+        <span class="disc__vinyl" id="vinyl" aria-hidden="true">
+          <span class="disc__label">
+            <span class="disc__mono">E<i>&amp;</i>Y</span>
+          </span>
+          <span class="disc__hole"></span>
+        </span>
+        <span class="disc__sheen" aria-hidden="true"></span>
+        <span class="disc__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+        <span class="disc__arm" aria-hidden="true"><i class="disc__rod"></i><i class="disc__pivot"></i></span>
+        <span class="disc__notes" id="discNotes" aria-hidden="true"></span>
+      </span>
+    </button>
+
     <a href="#gallery" data-target="gallery" aria-label="Galeri"><svg class="ic"><use href="#i-img"/></svg></a>
     <a href="#wish" data-target="wish" aria-label="Ucapan"><svg class="ic"><use href="#i-chat"/></svg></a>
     <a href="#gift" data-target="gift" aria-label="Hadiah"><svg class="ic"><use href="#i-gift"/></svg></a>

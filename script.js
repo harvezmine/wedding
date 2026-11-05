@@ -137,8 +137,56 @@
   }
   function pauseMusic() { wantsMusic = false; audio.pause(); }
   musicBtn.addEventListener("click", () => (audio.paused ? playMusic() : pauseMusic()));
-  audio.addEventListener("play", () => musicBtn.classList.add("is-playing"));
-  audio.addEventListener("pause", () => musicBtn.classList.remove("is-playing"));
+
+  // Vinyl: spins up / winds down with inertia instead of starting & stopping abruptly
+  const vinyl = $("#vinyl");
+  const ringFg = $("#discProgress");
+  const notesWrap = $("#discNotes");
+  const RPM_DEG = 150; // degrees per second at full speed
+  let angle = 0, vel = 0, spinning = false, lastT = 0;
+  function spinFrame(t) {
+    const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0;
+    lastT = t;
+    const target = audio.paused ? 0 : RPM_DEG;
+    vel += (target - vel) * Math.min(1, dt * (target ? 1.4 : 1.1));
+    angle = (angle + vel * dt) % 360;
+    vinyl.style.transform = `rotate(${angle.toFixed(2)}deg)`;
+    if (!audio.paused || vel > 0.6) requestAnimationFrame(spinFrame);
+    else { spinning = false; lastT = 0; }
+  }
+  function kickSpin() {
+    if (reduceMotion || spinning) return;
+    spinning = true;
+    requestAnimationFrame(spinFrame);
+  }
+
+  // Floating notes while the music plays
+  const NOTE_CHARS = ["♪", "♫", "♩", "♬"];
+  let noteTimer = null;
+  function spawnNote() {
+    if (document.hidden || audio.paused) return;
+    const n = document.createElement("span");
+    n.className = "note";
+    n.textContent = NOTE_CHARS[(Math.random() * NOTE_CHARS.length) | 0];
+    n.style.setProperty("--dx", (Math.random() * 56 - 28).toFixed(0) + "px");
+    n.style.setProperty("--r", (Math.random() * 50 - 25).toFixed(0) + "deg");
+    n.style.setProperty("--fs", (11 + Math.random() * 7).toFixed(0) + "px");
+    n.addEventListener("animationend", () => n.remove());
+    notesWrap.appendChild(n);
+  }
+  function setPlayingUI(on) {
+    musicBtn.classList.toggle("is-playing", on);
+    musicBtn.setAttribute("aria-pressed", String(on));
+    kickSpin();
+    clearInterval(noteTimer);
+    if (on && !reduceMotion) { spawnNote(); noteTimer = setInterval(spawnNote, 1300); }
+  }
+  audio.addEventListener("play", () => setPlayingUI(true));
+  audio.addEventListener("pause", () => setPlayingUI(false));
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+    ringFg.style.strokeDashoffset = (100 - (audio.currentTime / audio.duration) * 100).toFixed(2);
+  });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) audio.pause();
     else if (wantsMusic) audio.play().catch(() => {});
